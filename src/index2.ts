@@ -26,30 +26,28 @@ function evaluate(
   if (!Array.isArray(condition)) return false;
 
   // Root level comparision value
-  const result = new Set<boolean>();
+  const result: boolean[] = [];
 
-  // Updates the result set with the conditions
-  recEvaluate(result, condition, context, condition[0]);
+  // Updates the result array with the conditions
+  recEvaluate(result, condition, context);
 
   // Checks for the root level comparision and returns the value
-  return binaryConditionCheck(condition[0], result);
+  return checkResult(condition[0], result);
 }
 
 /**
  * Updates the result boolean array with n level comparision data
  * Recursive Function
  *
- * @param {Set<boolean>} result
+ * @param {boolean[]} result
  * @param {*} condition
  * @param {({ [key: string]: string | undefined })} context
- * @param {*} globalOperator
  * @returns
  */
 function recEvaluate(
-  result: Set<boolean>,
+  result: boolean[],
   condition: any,
-  context: { [key: string]: string | undefined },
-  globalOperator: any
+  context: { [key: string]: string | undefined }
 ) {
   // Check if the first element of array has OR
   // If so then go one level inside to check
@@ -59,19 +57,16 @@ function recEvaluate(
 
     // Loop through the condition and check again
     for (let i = 1; i < condition.length; i += 1) {
-      if (binaryConditionCheck(globalOperator, result)) {
-        break;
-      }
-      set.add(recEvaluate(result, condition[i], context, globalOperator));
+      set.add(recEvaluate(result, condition[i], context));
     }
 
     // After the evaluation of the index level, if there is true in the set return true
     // as (true || false) is true
     if (!set.has(undefined)) {
       if (set.has(true)) {
-        result.add(true);
+        result.push(true);
       } else {
-        result.add(false);
+        result.push(false);
       }
     }
 
@@ -83,19 +78,16 @@ function recEvaluate(
 
     // Loop through the condition and check again
     for (let i = 1; i < condition.length; i += 1) {
-      if (binaryConditionCheck(globalOperator, result)) {
-        break;
-      }
-      set.add(recEvaluate(result, condition[i], context, globalOperator));
+      set.add(recEvaluate(result, condition[i], context));
     }
 
     // After the evaluation of the index level, if there is true in the set return true
     // as (true || false) is true
     if (!set.has(undefined)) {
       if (set.has(false)) {
-        result.add(false);
+        result.push(false);
       } else {
-        result.add(true);
+        result.push(true);
       }
     }
 
@@ -118,24 +110,24 @@ function recEvaluate(
 }
 
 /**
- * Return the final result checking all the comparision from the boolean set
+ * Return the final result checking all the comparision from the boolean array
  *
  * @param {*} op
- * @param {Set<boolean>} result
+ * @param {boolean[]} result
  * @returns {boolean}
  */
-function binaryConditionCheck(op: any, result: Set<boolean>): boolean {
+function checkResult(op: any, result: boolean[]): boolean {
   // If the op is not either OR and AND, then the data is wrong.
   // By default return false
 
   if (typeof op !== 'string') return false;
 
   // If the global check is OR, then if array has true then return true
-  if (op === Operator.OR) {
-    return result.has(true);
-  } else if (op === Operator.AND) {
+  if (op === 'OR') {
+    return result.includes(true);
+  } else if (op === 'AND') {
     // If the global check is AND, then if array does not have false then return true
-    return !result.has(false);
+    return !result.includes(false);
   }
   // By default return false
   return false;

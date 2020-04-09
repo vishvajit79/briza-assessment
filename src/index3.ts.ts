@@ -28,21 +28,20 @@ function evaluate(
   // Root level comparision value
   const result = new Set<boolean>();
 
-  // Updates the result set with the conditions
+  // Updates the result array with the conditions
   recEvaluate(result, condition, context, condition[0]);
 
   // Checks for the root level comparision and returns the value
-  return binaryConditionCheck(condition[0], result);
+  return checkResult(condition[0], result);
 }
 
 /**
  * Updates the result boolean array with n level comparision data
  * Recursive Function
  *
- * @param {Set<boolean>} result
+ * @param {boolean[]} result
  * @param {*} condition
  * @param {({ [key: string]: string | undefined })} context
- * @param {*} globalOperator
  * @returns
  */
 function recEvaluate(
@@ -51,6 +50,9 @@ function recEvaluate(
   context: { [key: string]: string | undefined },
   globalOperator: any
 ) {
+  if (binaryConditionCheck(result, globalOperator)) {
+    return;
+  }
   // Check if the first element of array has OR
   // If so then go one level inside to check
   if (condition[0] == Operator.OR) {
@@ -59,9 +61,6 @@ function recEvaluate(
 
     // Loop through the condition and check again
     for (let i = 1; i < condition.length; i += 1) {
-      if (binaryConditionCheck(globalOperator, result)) {
-        break;
-      }
       set.add(recEvaluate(result, condition[i], context, globalOperator));
     }
 
@@ -83,9 +82,6 @@ function recEvaluate(
 
     // Loop through the condition and check again
     for (let i = 1; i < condition.length; i += 1) {
-      if (binaryConditionCheck(globalOperator, result)) {
-        break;
-      }
       set.add(recEvaluate(result, condition[i], context, globalOperator));
     }
 
@@ -117,23 +113,36 @@ function recEvaluate(
   }
 }
 
+function binaryConditionCheck(result: Set<boolean>, condition: any) {
+  if (condition == Operator.OR) {
+    if (result.has(true)) {
+      return true;
+    }
+  } else if (condition == Operator.AND) {
+    if (result.has(false)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /**
- * Return the final result checking all the comparision from the boolean set
+ * Return the final result checking all the comparision from the boolean array
  *
  * @param {*} op
- * @param {Set<boolean>} result
+ * @param {boolean[]} result
  * @returns {boolean}
  */
-function binaryConditionCheck(op: any, result: Set<boolean>): boolean {
+function checkResult(op: any, result: Set<boolean>): boolean {
   // If the op is not either OR and AND, then the data is wrong.
   // By default return false
 
   if (typeof op !== 'string') return false;
 
   // If the global check is OR, then if array has true then return true
-  if (op === Operator.OR) {
+  if (op === 'OR') {
     return result.has(true);
-  } else if (op === Operator.AND) {
+  } else if (op === 'AND') {
     // If the global check is AND, then if array does not have false then return true
     return !result.has(false);
   }

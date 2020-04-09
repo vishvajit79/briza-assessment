@@ -1,0 +1,36 @@
+[
+  "OR",
+  [
+    "AND",
+    [
+      "AND",
+      [
+        "OR",
+        [
+          "AND",
+          ["==", "$State", "Alabamas"],
+          ["==", "$Profession", "Software development"]
+        ],
+        [
+          "AND",
+          ["==", "$State", "Alabamas"],
+          ["==", "$Profession", "Software development"]
+        ]
+      ],
+      ["AND", ["==", "$State", "Texas"]],
+      ["OR", ["==", "$Profession", "Tradesperson"]],
+      [
+        "AND",
+        ["==", "$State", "Alabamas"],
+        ["==", "$Profession", "Software development"]
+      ]
+    ],
+    [
+      "AND",
+      ["==", "$State", "Alabama"],
+      ["==", "$Profession", "Software development"]
+    ]
+  ],
+  ["AND", ["==", "$State", "Texas"]],
+  ["OR", ["==", "$Profession", "Tradesperson"]]
+]
